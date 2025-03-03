@@ -132,11 +132,13 @@ def demo(question):
     return collection
 
 
+# generate_hw01()
+
 # question = "我想要找有關茶餐點的店家"
 # city = ["宜蘭縣", "新北市"]
 # store_type = ["美食"]
 # start_date = datetime.datetime(2024, 4, 1)
 # end_date = datetime.datetime(2024, 5, 1)
-# generate_hw02(question, city, store_type, start_date, end_date)
+
 # results = generate_hw02(question, city, store_type, start_date, end_date)
 # print(results)
