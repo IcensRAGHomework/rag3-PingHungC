@@ -50,7 +50,7 @@ def generate_hw01():
             "tel": row["Tel"],
             "city": row["City"],
             "town": row["Town"],
-            "date": row["Date"]
+            "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
         }
         collection.add(
             ids=[str(i)],
