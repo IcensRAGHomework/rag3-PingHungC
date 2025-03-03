@@ -41,25 +41,23 @@ def generate_hw01():
         embedding_function=openai_ef
     )
 
-    collection.add(
-            ids=[str(i) for i in range(len(df))],
-            metadatas=[
-                {
-                    "file_name": "COA_OpenData.csv",
-                    "name": row["Name"],
-                    "type": row["Type"],
-                    "address": row["Address"],
-                    "tel": row["Tel"],
-                    "city": row["City"],
-                    "town": row["Town"],
-                    "date": row["Date"]
-                }
-                for _, row in df.iterrows()
-            ],
-            documents=df["HostWords"].fillna("").tolist()
+    for i, row in df.iterrows():
+        metadata = {
+            "file_name": "COA_OpenData.csv",
+            "name": row["Name"],
+            "type": row["Type"],
+            "address": row["Address"],
+            "tel": row["Tel"],
+            "city": row["City"],
+            "town": row["Town"],
+            "date": row["Date"]
+        }
+        collection.add(
+            ids=[str(i)],
+            metadatas=[metadata],
+            documents=[row["HostWords"]]
         )
-        
-    #print("資料已成功存入 ChromaDB")
+
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
@@ -132,7 +130,7 @@ def demo(question):
     return collection
 
 
-# generate_hw01()
+generate_hw01()
 
 # question = "我想要找有關茶餐點的店家"
 # city = ["宜蘭縣", "新北市"]
