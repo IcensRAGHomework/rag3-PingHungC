@@ -25,8 +25,6 @@ def generate_hw01():
     if not required_columns.issubset(df.columns):
         print("CSV 缺少必要的欄位")
 
-    df["Date"] = pd.to_datetime(df["CreateDate"], errors="coerce").apply(lambda x: int(x.timestamp()) if pd.notnull(x) else 0)
-
     chroma_client = chromadb.PersistentClient(path=dbpath)
     openai_ef = embedding_functions.OpenAIEmbeddingFunction(
         api_key = gpt_emb_config['api_key'],
@@ -130,7 +128,7 @@ def demo(question):
     return collection
 
 
-generate_hw01()
+# generate_hw01()
 
 # question = "我想要找有關茶餐點的店家"
 # city = ["宜蘭縣", "新北市"]
