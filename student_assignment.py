@@ -28,29 +28,29 @@ def generate_hw01():
         embedding_function=openai_ef
     )
 
-    df = pd.read_csv(csv_file_name)
-    print("columns: "+df.columns)
+    if collection.count() == 0:
+        df = pd.read_csv(csv_file_name)
+        print("columns: "+df.columns)
 
-    for idx, row in df.iterrows():
-        metadata = {
-            "file_name": csv_file_name,
-            "name": row["Name"],
-            "type": row["Type"],
-            "address": row["Address"],
-            "tel": row["Tel"],
-            "city": row["City"],
-            "town": row["Town"],
-            "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())  # 轉timeStamp
-        }
-        print(str(idx)+str(metadata))
-        print("\n")
-        # 將資料寫入 ChromaDB
-        collection.add(
-            ids=[str(idx)],
-            metadatas=[metadata],
-            documents=[row["HostWords"]]
-        )
-
+        for idx, row in df.iterrows():
+            metadata = {
+                "file_name": csv_file_name,
+                "name": row["Name"],
+                "type": row["Type"],
+                "address": row["Address"],
+                "tel": row["Tel"],
+                "city": row["City"],
+                "town": row["Town"],
+                "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())  # 轉timeStamp
+            }
+            print(str(idx)+str(metadata))
+            print("\n")
+            # 將資料寫入 ChromaDB
+            collection.add(
+                ids=[str(idx)],
+                metadatas=[metadata],
+                documents=[row["HostWords"]]
+            )
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
