@@ -29,13 +29,7 @@ def generate_hw01():
     )
 
     df = pd.read_csv(csv_file_name)
-
-    # if df.empty:
-    #     print("讀取失敗：DataFrame 為空")
-
-    # required_columns = {"Name", "Type", "Address", "Tel", "City", "Town", "CreateDate", "HostWords"}
-    # if not required_columns.issubset(df.columns):
-    #     print("CSV 缺少必要的欄位")
+    print("columns: "+df.columns)
 
     for idx, row in df.iterrows():
         metadata = {
