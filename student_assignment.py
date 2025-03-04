@@ -11,7 +11,6 @@ gpt_emb_version = 'text-embedding-ada-002'
 gpt_emb_config = get_model_configuration(gpt_emb_version)
 
 dbpath = "./"
-csv_file_name = "COA_OpenData.csv"
 
 def generate_hw01():
     chroma_client = chromadb.PersistentClient(path=dbpath)
@@ -28,29 +27,35 @@ def generate_hw01():
         embedding_function=openai_ef
     )
 
+    if collection.count() == 0:
+        df = pd.read_csv("./COA_OpenData.csv")
 
-    df = pd.read_csv(csv_file_name)
-    print("columns: "+df.columns)
+        if df.empty:
+            print("讀取失敗：DataFrame 為空")
 
-    for idx, row in df.iterrows():
-        metadata = {
-            "file_name": csv_file_name,
-            "name": row["Name"],
-            "type": row["Type"],
-            "address": row["Address"],
-            "tel": row["Tel"],
-            "city": row["City"],
-            "town": row["Town"],
-            "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())  # 轉timeStamp
-        }
-        print(str(idx)+str(metadata))
-        print("\n")
-        # 將資料寫入 ChromaDB
-        collection.add(
-            ids=[str(idx)],
-            metadatas=[metadata],
-            documents=[row["HostWords"]]
-        )
+        required_columns = {"Name", "Type", "Address", "Tel", "City", "Town", "CreateDate", "HostWords"}
+        if not required_columns.issubset(df.columns):
+            print("CSV 缺少必要的欄位")
+
+        df["Date"] = pd.to_datetime(df["CreateDate"], errors="coerce").apply(lambda x: int(x.timestamp()) if pd.notnull(x) else 0)
+
+        for i, row in df.iterrows():
+            metadata = {
+                "file_name": "COA_OpenData.csv",
+                "name": row["Name"],
+                "type": row["Type"],
+                "address": row["Address"],
+                "tel": row["Tel"],
+                "city": row["City"],
+                "town": row["Town"],
+                "date": row["Date"]
+            }
+            collection.add(
+                ids=[str(i)],
+                metadatas=[metadata],
+                documents=[row["HostWords"]]
+            )
+
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
