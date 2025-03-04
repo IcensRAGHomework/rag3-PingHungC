@@ -37,7 +37,7 @@ def generate_hw01():
     # if not required_columns.issubset(df.columns):
     #     print("CSV 缺少必要的欄位")
 
-    for i, row in df.iterrows():
+    for idx, row in df.iterrows():
         metadata = {
             "file_name": csv_file_name,
             "name": row["Name"],
@@ -46,12 +46,13 @@ def generate_hw01():
             "tel": row["Tel"],
             "city": row["City"],
             "town": row["Town"],
-            "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())
+            "date": int(datetime.datetime.strptime(row['CreateDate'], '%Y-%m-%d').timestamp())  # 轉timeStamp
         }
-        # print(str(i)+str(metadata))
-        # print("\n")
+        print(str(idx)+str(metadata))
+        print("\n")
+        # 將資料寫入 ChromaDB
         collection.add(
-            ids=[str(i)],
+            ids=[str(idx)],
             metadatas=[metadata],
             documents=[row["HostWords"]]
         )
