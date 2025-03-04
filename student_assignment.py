@@ -59,53 +59,32 @@ def generate_hw01():
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
-    try:
-        client = chromadb.PersistentClient(path=dbpath)
-        openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-            api_key = gpt_emb_config['api_key'],
-            api_base = gpt_emb_config['api_base'],
-            api_type = gpt_emb_config['openai_type'],
-            api_version = gpt_emb_config['api_version'],
-            deployment_id = gpt_emb_config['deployment_name']
-        )
-        collection = client.get_collection(
-            name="TRAVEL",
-            embedding_function=openai_ef
-        )
-        # 查詢 ChromaDB
-        results = collection.query(
-            query_texts=[question],
-            n_results=150
-        )
 
-        # print(results)
+    collection = generate_hw01()
 
-        filtered_results = []
-        for i, score in enumerate(results["distances"][0]):
-            metadata = results["metadatas"][0][i]
-            # 篩選條件
-            
-            # if score < 0.80:
-            #     continue
-            if city and metadata["city"] not in city:
+    results = collection.query(
+        query_texts=[question],
+        n_results=150
+    )
+
+    filtered_results = []
+    for i, score in enumerate(results["distances"][0]):
+        metadata = results["metadatas"][0][i]
+        similarity = 1 - score
+        if similarity < 0.80:
+            continue
+        if city and metadata["city"] not in city:
+            continue
+        if store_type and metadata["type"] not in store_type:
                 continue
-            if store_type and metadata["type"] not in store_type:
-                 continue
-            if start_date and metadata["date"] < int(start_date.timestamp()):
-                continue
-            if end_date and metadata["date"] > int(end_date.timestamp()):
-                continue
-            filtered_results.append((metadata["name"], score))
-        
-        # 按照相似度排序並提取名稱
-        filtered_results.sort(key=lambda x: x[1], reverse=True)
-        return [name for name, _ in filtered_results]
-        pass
+        if start_date and metadata["date"] < int(start_date.timestamp()):
+            continue
+        if end_date and metadata["date"] > int(end_date.timestamp()):
+            continue
+        filtered_results.append((metadata["name"], similarity))
     
-    except Exception as e:
-        print("查詢失敗：")
-        traceback.print_exc()
-        return []
+    filtered_results.sort(key=lambda x: x[1], reverse=True)
+    return [name for name, _ in filtered_results]
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
     pass
