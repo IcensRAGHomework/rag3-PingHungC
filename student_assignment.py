@@ -87,7 +87,41 @@ def generate_hw02(question, city, store_type, start_date, end_date):
     return [name for name, _ in filtered_results]
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
-    pass
+    collection = generate_hw01()
+
+    results = collection.query(
+        query_texts=[store_name], 
+        n_results=1
+    )
+
+    if results["metadatas"][0]:
+        store_metadata = results["metadatas"][0][0]
+        store_metadata["name"] = new_store_name
+        collection.update(ids=[results["ids"][0][0]], metadatas=[store_metadata])
+
+    results = collection.query(
+        query_texts=[question],
+        n_results=10,
+        include=["metadatas", "distances"],
+        where={
+            "$and": [
+                {"type": {"$in": store_type}},
+                {"city": {"$in": city}}
+            ]
+        }
+    )
+
+    filtered_results = []
+    for i, score in enumerate(results["distances"][0]):
+        metadata = results["metadatas"][0][i]
+        similarity = 1 - score
+        if similarity < 0.80:
+            continue
+
+        filtered_results.append((metadata["name"], similarity))
+    
+    filtered_results.sort(key=lambda x: x[1], reverse=True)
+    return [name for name, _ in filtered_results]
     
 def demo(question):
     chroma_client = chromadb.PersistentClient(path=dbpath)
@@ -106,14 +140,3 @@ def demo(question):
     
     return collection
 
-
-# generate_hw01()
-
-# question = "我想要找有關茶餐點的店家"
-# city = ["宜蘭縣", "新北市"]
-# store_type = ["美食"]
-# start_date = datetime.datetime(2024, 4, 1)
-# end_date = datetime.datetime(2024, 5, 1)
-
-# results = generate_hw02(question, city, store_type, start_date, end_date)
-# print(results)
